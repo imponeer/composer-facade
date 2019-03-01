@@ -1,0 +1,13 @@
+{
+  "name": "imponeer/ipfcomposer",
+  "description": "Use composer from within your IPF application",
+  "type": "library",
+  "minimum-stability": "stable",
+  "license": "",
+  "authors": [
+    {
+      "name": "David Janssens",
+      "email": "david.j@impresscms.org"
+    }
+  ]
+}
