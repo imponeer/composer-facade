@@ -53,3 +53,12 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+/vendor/
+.idea/deployment.xml
+.idea/encodings.xml
+.idea/ipfcomposer.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/php.xml
+.idea/vcs.xml
+vendor/

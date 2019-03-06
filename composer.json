@@ -3,11 +3,17 @@
   "description": "Use composer from within your IPF application",
   "type": "library",
   "minimum-stability": "stable",
-  "license": "",
+  "license": "GPL-2.0-only",
   "authors": [
     {
       "name": "David Janssens",
       "email": "david.j@impresscms.org"
     }
-  ]
+  ],
+  "config": {
+    "optimize-autoloader": true
+  },
+  "require": {
+    "composer/composer": "1.8.4"
+  }
 }
