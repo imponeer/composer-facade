@@ -52,18 +52,14 @@ class composerfacade
             throw new JsonValidationException($message);
         }
         echo "getting installation manager\n";
-        $installationManager = $composerapp->getInstallationManager();
+        $this->installationManager = $composerapp->getInstallationManager();
         echo "getting repository manager\n";
-        $localRepo = $composerapp->getRepositoryManager()->getLocalRepository();
+        $this->localRepo = $composerapp->getRepositoryManager()->getLocalRepository();
         echo "getting package\n";
-        $package = $composerapp->getPackage();
+        $this->package = $composerapp->getPackage();
         echo "getting config\n";
-        $config = $composerapp->getConfig();
+        $this->config = $composerapp->getConfig();
         $this->composer = $composerapp;
-        $this->installationManager = $installationManager;
-        $this->localRepo = $localRepo;
-        $this->package = $package;
-        $this->config = $config;
     }
 
         /**
