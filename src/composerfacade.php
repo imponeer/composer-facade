@@ -9,9 +9,11 @@
 namespace Imponeer\Composer;
 
 use Composer\Command\BaseCommand;
-//use Composer\Console\Application as ComposerApp;
-//use Symfony\Component\Console\Input\StringInput;
-//use Symfony\Component\Console\Output\BufferedOutput;
+use Composer\Factory;
+use Composer\Cache;
+use Composer\Installer;
+use Composer\Json\JsonFile;
+use Composer\Json\JsonManipulator;
 
 /**
  * Class composer_facade
@@ -31,6 +33,8 @@ class composerfacade
     var $package;
     var $config;
 
+    var $io;
+
     /**
      * composer_facade constructor.
      * @param $homepath the composer home folder where the composer.json and composer.lock file are situated
@@ -39,11 +43,11 @@ class composerfacade
     {
         echo "starting the composer factory creation!\n";
         try {
-            $io = new \Composer\IO\NullIO();
-            $composerapp = \Composer\Factory::create($io, $homepath, true);
+            $this->io = new \Composer\IO\NullIO();
+            $composerapp = Factory::create($this->io, $homepath, false);
         } catch (\InvalidArgumentException $e) {
             if (true) {
-                $io->writeError($e->getMessage());
+                $this->io->writeError($e->getMessage());
                 exit(1);
             }
         } catch (JsonValidationException $e) {
@@ -69,6 +73,64 @@ class composerfacade
     {
         $command = 'install';
         $this->run($command);
+    }
+
+    public function clearcache()
+    {
+        $config = Factory::createConfig();
+
+        $cachePaths = array(
+            'cache-vcs-dir' => $config->get('cache-vcs-dir'),
+            'cache-repo-dir' => $config->get('cache-repo-dir'),
+            'cache-files-dir' => $config->get('cache-files-dir'),
+            'cache-dir' => $config->get('cache-dir'),
+        );
+
+        foreach ($cachePaths as $key => $cachePath) {
+            $cachePath = realpath($cachePath);
+            if (!$cachePath) {
+                $this->io->writeError("<info>Cache directory does not exist ($key): $cachePath</info>");
+
+                continue;
+            }
+            $cache = new Cache($this->io, $cachePath);
+            if (!$cache->isEnabled()) {
+                $this->io->writeError("<info>Cache is not enabled ($key): $cachePath</info>");
+
+                continue;
+            }
+
+            echo "<info>Clearing cache ($key): $cachePath</info>";
+            $cache->clear();
+        }
+    }
+    public function addPackage()
+    {
+        echo "getting composer file";
+        $configfile = Factory::getComposerFile();
+        $json = new JsonFile($configfile);
+
+        $newlyCreated = !file_exists($configfile);
+        if ($newlyCreated && !file_put_contents($configfile, "{\n}\n")) {
+            echo '<error>'.$configfile.' could not be created.</error>';
+
+            return 1;
+        }
+        if (!is_readable($configfile)) {
+            echo '<error>'.$configfile.' is not readable.</error>';
+
+            return 1;
+        }
+        if (!is_writable($configfile)) {
+            echo '<error>'.$configfile.' is not writable.</error>';
+
+            return 1;
+        }
+
+        if (filesize($configfile) === 0) {
+            file_put_contents($configfile, "{\n}\n");
+        }
+
     }
 
         /**
@@ -103,10 +165,5 @@ class composerfacade
         return $numberOfClasses;
     }
 
-    function run($command)
-    {
-        //$composerapp = new \Composer\Composer();
-        // Uit Factory.php - maakt een geconfigureerde composer instance aan
 
-    }
 }

@@ -12,3 +12,4 @@ include '../vendor/autoload.php';
 $nullio = new \Composer\IO\NullIO();
 $composerapp = new composerfacade($nullio, '../composer.json');
 echo $composerapp->generate_autoload();
+echo $composerapp->clearcache();
