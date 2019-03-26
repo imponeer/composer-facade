@@ -25,7 +25,7 @@ use Composer\Command\BaseCommand;
 class composerfacade
 {
     protected $homepath;
-    var $composerapp;
+    protected $composer;
     var $installationManager;
     var $localRepo;
     var $package;
@@ -35,14 +35,15 @@ class composerfacade
      * composer_facade constructor.
      * @param $homepath the composer home folder where the composer.json and composer.lock file are situated
      */
-    public function __construct(\Composer\IO\IOInterface $io, $homepath)
+    public function __construct(\Composer\IO\IOInterface $iolocal, $homepath)
     {
         echo "starting the composer factory creation!\n";
         try {
-            $composerapp = \Composer\Factory::create($this->io, $homepath, true);
+            $io = new \Composer\IO\NullIO();
+            $composerapp = \Composer\Factory::create($io, $homepath, true);
         } catch (\InvalidArgumentException $e) {
             if (true) {
-                $this->io->writeError($e->getMessage());
+                $io->writeError($e->getMessage());
                 exit(1);
             }
         } catch (JsonValidationException $e) {
@@ -58,8 +59,11 @@ class composerfacade
         $package = $composerapp->getPackage();
         echo "getting config\n";
         $config = $composerapp->getConfig();
-
-        //return $composerapp;
+        $this->composer = $composerapp;
+        $this->installationManager = $installationManager;
+        $this->localRepo = $localRepo;
+        $this->package = $package;
+        $this->config = $config;
     }
 
         /**
@@ -92,12 +96,12 @@ class composerfacade
     public function generate_autoload()
     {
         echo "generating autoloader...\n";
-        $generator = $this->composerapp->getAutoloadGenerator();
+        $generator = $this->composer->getAutoloadGenerator();
         $generator->setDevMode(true);
         $generator->setClassMapAuthoritative(true);
         $generator->setApcu(true);
         $generator->setRunScripts(true);
-        $numberOfClasses = $generator->dump($config, $localRepo, $package, $installationManager, 'composer', true);
+        $numberOfClasses = $generator->dump($this->config, $this->localRepo, $this->package, $this->installationManager, 'composer', true);
 
         echo "number of classes autoloaded : " . $numberOfClasses;
         return $numberOfClasses;
